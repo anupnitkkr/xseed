@@ -152,7 +152,7 @@ const testData =[
   *  Test Case 1 : invalid email ID
   */
   {
-    id: `${uid}_anup`,
+    id: `${uuid()}_anup`,
     email: `anupgmail.com`,
     name: 'Anup Kumar',
     age: "26",
@@ -163,8 +163,8 @@ const testData =[
   *  Test Case 2 : All correct Data
   */
   {
-    id: `${uid}_anup`,
-    email: `anup-${uid}@gmail.com`,
+    id: `${uuid()}_anup`,
+    email: `anup-${uuid()}@gmail.com`,
     name: 'Anup Kumar',
     age: "26",
     addresses: [{ city: 'Gurgaon', state: 'Haryana' }],

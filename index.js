@@ -29,7 +29,7 @@ const models = { };
 /**
  * Find the type
  */
-function findType(config, splitcolon) {
+function findType(config, splitcolon){
   const splitspace = splitcolon[1].trim().split(' ');
   // if `!` is present replace that otherwise don't do anything
   const name = splitspace[0].trim().replace('!', '').replace('[', '').replace(']', '');
@@ -56,7 +56,7 @@ function findType(config, splitcolon) {
   return name;
 }
 
-function parseSchema(value, key, config) {
+function parseSchema(value, key, config){
   // split the value by newline character
   // it is mandatory to have new line character to define models
   const split = value.split('\n');
@@ -66,18 +66,18 @@ function parseSchema(value, key, config) {
   let modelName;
   _.each(split, (line, index) => {
     line = line.trim();
-    if (line.indexOf('@model') !== -1) {
+    if (line.includes('@model')) {
       // this is a model
       modelName = line.split(' ')[1].trim();
-    } else if (line.indexOf('type') === -1) {
+    } else if (!line.includes('type')) {
       const splitcolon = line.split(':');
       // check if this is array type
-      const isArray = splitcolon[1].trim().indexOf('[') !== -1 && splitcolon[1].trim().indexOf(']') !== -1;
+      const isArray = splitcolon[1].trim().includes('[')&& splitcolon[1].trim().includes(']')
       const splitspace = splitcolon[1].trim().split(' ');
       schema[splitcolon[0].trim()] = {
         type: isArray === true ? [findType(config, splitcolon)] : findType(config, splitcolon),
-        required: splitcolon[0].indexOf('!') !== -1,
-        unique: splitspace.length > 1 && splitspace[1].indexOf('@unique') !== -1,
+        required: splitcolon[0].includes('!'),
+        unique: splitspace.length > 1 && splitspace[1].includes('@unique'),
       };
     }
   });
@@ -95,10 +95,9 @@ function parseSchema(value, key, config) {
 
 const keys = _.keys(config);
 
-for (let i = 0; i < keys.length; i += 1) {
-  const key = keys[i];
+keys.forEach((key, index) => {
   parseSchema(config[key], key, config);
-}
+})
 
 
 // insert some sample data into the database

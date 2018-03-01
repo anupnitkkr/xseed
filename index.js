@@ -26,6 +26,15 @@ const db = require('./datasource').getDb('mongodb://localhost:27017/xseed', 10);
 // a map of mongoose model name to mongoose model objects
 const models = { };
 
+/*
+*  Validate email Id
+**/
+
+const validateEmail = (email) => {  
+    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email);
+}
+
 /**
  * Find the type
  */
@@ -81,7 +90,6 @@ const  parseSchema = (value, key, config) => {
       };
     }
   });
-
   const mongooseSchema = new mongoose.Schema(schema);
 
   if (_.isString(modelName)) {
@@ -98,36 +106,92 @@ const keys = _.keys(config);
 keys.forEach((key, index) => {
   parseSchema(config[key], key, config);
 })
-
+const createUser = (data) => {
+  if(validateEmail(data.email)){
+    models.User.create(data, function (err, saved) {
+      if (err) {
+        console.error('failed to save data into mongo db', err);
+        throw new Error(err);
+      } else {
+        console.log('*********\n mongo db data saved successfully, validating the saved data \n*********');
+        models.User.find({ id: `${uid}_anup` }, function (nerr, doc) {
+          if (nerr) {
+            console.error('failed to retrieve document from mongodb', nerr);
+          } else {
+            console.log('*********\n document retrieved successfully \n*********');
+            console.log(JSON.stringify(doc));
+          }
+        });
+      }
+    });
+  }else{
+    console.log('*********\n Invalid email ID \n*************')
+  }  
+};
 
 // insert some sample data into the database
 
 const uid = uuid();
-
 const data = {
   id: `${uid}_anup`,
   email: `anup-${uid}@gmail.com`,
   name: 'Anup Kumar',
-  age: 26,
+  age: "26",
   addresses: [{ city: 'Gurgaon', state: 'Haryana' }],
   dateOfBirth: Date.now(),
 };
 
+createUser(data);
 
-models.User.create(data, function (err, saved) {
-  if (err) {
-    console.error('failed to save data into mongo db', err);
-    throw new Error(err);
-  } else {
-    console.log('mongo db data saved successfully, validating the saved data');
-    models.User.find({ id: `${uid}_anup` }, function (nerr, doc) {
-      if (nerr) {
-        console.error('failed to retrieve document from mongodb', nerr);
-      } else {
-        console.log('document retrieved successfully');
-        console.log(JSON.stringify(doc));
-        process.exit();
-      }
-    });
+/*
+*     Test Case 
+ */
+
+const testData =[  
+  /*
+  *  Test Case 1 : invalid email ID
+  */
+  {
+    id: `${uid}_anup`,
+    email: `anupgmail.com`,
+    name: 'Anup Kumar',
+    age: "26",
+    addresses: [{ city: 'Gurgaon', state: 'Haryana' }],
+    dateOfBirth: Date.now(),
+  },
+  /*
+  *  Test Case 2 : All correct Data
+  */
+  {
+    id: `${uid}_anup`,
+    email: `anup-${uid}@gmail.com`,
+    name: 'Anup Kumar',
+    age: "26",
+    addresses: [{ city: 'Gurgaon', state: 'Haryana' }],
+    dateOfBirth: Date.now(),
+  },
+  /*
+  *  Test Case 3 : same email and id - unique insert test
+  */
+  {
+    id: `xyz_anup`,
+    email: `anup@gmail.com`,
+    name: 'Anup Kumar',
+    age: "26",
+    addresses: [{ city: 'Gurgaon', state: 'Haryana' }],
+    dateOfBirth: Date.now(),
+  },{
+    id: `xyz_anup`,
+    email: `anup@gmail.com`,
+    name: 'Anup Kumar',
+    age: "26",
+    addresses: [{ city: 'Gurgaon', state: 'Haryana' }],
+    dateOfBirth: Date.now(),
   }
+]
+
+testData.forEach((test, index) => {
+  createUser(test);
 });
+
+

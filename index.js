@@ -29,7 +29,7 @@ const models = { };
 /**
  * Find the type
  */
-function findType(config, splitcolon){
+const findType = (config, splitcolon) => {
   const splitspace = splitcolon[1].trim().split(' ');
   // if `!` is present replace that otherwise don't do anything
   const name = splitspace[0].trim().replace('!', '').replace('[', '').replace(']', '');
@@ -56,7 +56,7 @@ function findType(config, splitcolon){
   return name;
 }
 
-function parseSchema(value, key, config){
+const  parseSchema = (value, key, config) => {
   // split the value by newline character
   // it is mandatory to have new line character to define models
   const split = value.split('\n');
